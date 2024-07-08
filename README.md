@@ -39,7 +39,7 @@ Requirements:
 - Ingenuity Pathway Analysis (IPA), KEGG or Reactome,
 - Intergrative Genomic Viewer (IGV)
 
-Before beginning the analysis, please install the above packages and clone this repository in your PC using: git clone https://github.com/Gadji-M/RNA-Seq_Uganda/`
+Before beginning the analysis, please install the above packages and clone this repository in your PC using: git clone https://github.com/Gadji-M/RNA-Seq_Uganda/
 
 # Quality Control of RNA-Seq data <a name="section-4"></a>
 
