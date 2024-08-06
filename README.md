@@ -41,13 +41,27 @@ Requirements:
 
 Before beginning the analysis, please install the above packages and clone this repository in your PC using: git clone https://github.com/Gadji-M/RNA-Seq_Uganda/
 
-# Quality Control of RNA-Seq data <a name="section-4"></a>
+## Quality Control of RNA-Seq data <a name="section-4"></a>
 
 Here, we applied the script `Fastq_Quality_check.sh` previously design in [https://github.com/Gadji-M/PoolSeq_OMIcsTouch/](https://github.com/Gadji-M/PoolSeq_OMIcsTouch/) to quality check our data. Please have a look and follow the instructions to run the command.
 
 
-## Trimming data using [fastp](https://open.bioqueue.org/home/knowledge/showKnowledge/sig/fastp) based on QC reports
+### Trimming data using [fastp](https://open.bioqueue.org/home/knowledge/showKnowledge/sig/fastp) based on QC reports
 Here, we'll use `fastp` to trim reads from RNA-Seq data: 
 `fastp -i Path/to/read1 R1_1.fq.gz -I Path/to/read2 R2_2.fq.gz -o Path/to/output/read1 trimmed_R1_1.fq.gz -O Path/to/output/read2 trimmed_R2_2.fq.gz -a read1_adapter_Seq --adapter_sequence_r2 read2_adapter_seq -l 25 -j Path/to/json {sample}.fastp.json -h Path/to/html/ {sample}.fastp.html -w threads`
 
 Note: Please refer to the [fastp](https://open.bioqueue.org/home/knowledge/showKnowledge/sig/fastp) documentation or manual for more details on the options.
+
+## Alignment and statistics <a name="section-5"></a>
+Alignment is done using various aligners that have been developed by bioinformaticians. These tools include HISAT2, STAR, Kallisto, etc. The choice of the aligner to use for RNA-Seq alignment depends on various factors and the type of output desired. One commonly used aligner is the splice-aware aligner [STAR](https://github.com/alexdobin/STAR), which is quite fast and can output both transcriptome alignment for differential gene expression (DGE) analysis and genome alignment for visualization. In our case, we used STAR for the alignment of the Uganda raw RNA-seq data to the reference genome, along with a reference transcriptome, to output two alignment files: the genome alignment and the transcriptome alignment. Please feel free to go through the manual available [here](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf).
+One key step before running the alignment is to download the reference genome and index it. You can use **curl** or **wget** to download it. In our case, we have two reference genomes on [VectorBase](vectorbase.org/), the [AfunF3](https://vectorbase.org/common/downloads/release-68/AfunestusFUMOZ/fasta/data/VectorBase-68_AfunestusFUMOZ_Genome.fasta) (FUMOZ) from Mozambique and the latest [AfunGA1](https://vectorbase.org/common/downloads/release-68/AfunestusAfunGA1/fasta/data/VectorBase-68_AfunestusAfunGA1_Genome.fasta) from Gabon.  I preferred using the FUMOZ one here because we have been using it for a while, and the pipeline was already set up. It is easy to work with, whereas using the AfunGA1 is not straightforward as it requires troubleshooting and optimization of some errors. However, it is advisable to use AfunGA1 as it is recent and has improved assembly and annotations.
+
+After downloading the reference genome and the annotation file (i.e., the .gtf file) into a directory, use this command to index it:
+
+`GENOMEDIR=/path/to/indexed/genome`
+
+`STAR --runThreadN 8 --runMode genomeGenerate --genomeDir $GENOMEDIR --genomeFastaFiles $GENOMEDIR/genome.fasta --sjdbGTFfile annotation.gtf --sjdbOverhang readlength -1`
+
+Because I had five treatments and four biological replicates for each treatment, totaling 20 samples, I preferred to use loops to align them consecutively and save time for other tasks. Below is the command I used for the alignment, which you can edit as needed:
+
+`for i in path/to/raw/fastq/*_1.fq.gz; do j=${i/_1.fq.gz/_2.fq.gz} time STAR --runThreadN 8 --genomeDir path/to/indices --readFilesIn $i $j --readFilesCommand zcat --outFileNamePrefix path/to/output/$(basename $i _1.fq.gz). --quantMode TranscriptomeSAM --outSAMattributes NH HI AS NM MD  --outSAMtype BAM SortedByCoordinate  > path/to/output/$(basename $i _1.fq.gz)_alignment.log 2> path/to/output/$(basename $i _1.fq.gz)_alignment.err; done`
