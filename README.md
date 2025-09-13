@@ -59,6 +59,7 @@ One key step before running the alignment is to download the reference genome an
 After downloading the reference genome and the annotation file (i.e., the .gtf file) into a directory, use this command to index it:
 
 `GENOMEDIR=/path/to/indexed/genome`
+In the command line below, bear in ming to add the exact read length minus 1 to replace this `readlength -1`.
 
 `STAR --runThreadN 8 --runMode genomeGenerate --genomeDir $GENOMEDIR --genomeFastaFiles $GENOMEDIR/genome.fasta --sjdbGTFfile annotation.gtf --sjdbOverhang readlength -1`
 
