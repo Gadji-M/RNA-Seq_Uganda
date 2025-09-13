@@ -60,7 +60,7 @@ After downloading the reference genome and the annotation file (i.e., the .gtf f
 
 `GENOMEDIR=/path/to/indexed/genome`.
 
-In the command line below, bear in ming to add the exact read length minus 1 to replace this `readlength -1`.
+`readlength -1`: specifies the length of the genomic sequence around the annotated junction to be used in constructing the splice junctions database. Ideally, this length should be equal to the ReadLength-1, where ReadLength is the length of the reads. For instance, for Illumina 2x150b paired-end reads, the ideal value is 150-1=149. In case of reads of varying length, the ideal value is max(ReadLength)-1. In most cases, the default value of 100 will work as well as the ideal value.
 
 `STAR --runThreadN 8 --runMode genomeGenerate --genomeDir $GENOMEDIR --genomeFastaFiles $GENOMEDIR/genome.fasta --sjdbGTFfile annotation.gtf --sjdbOverhang readlength -1`
 
